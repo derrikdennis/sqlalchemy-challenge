@@ -4,41 +4,31 @@ from flask import Flask, jsonify
 import sqlalchemy
 import numpy as np
 import pandas as pd
-import arrow
-
-
-
+import datetime as dt 
 
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
+from sqlalchemy.sql.functions import session_user
+from sqlalchemy.sql.selectable import subquery
 
 engine = create_engine("sqlite:///Instructions/Resources/hawaii.sqlite")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
-keys = Base.classes.keys()
-session = Session(engine)
+
 Measurement= Base.classes.measurement
 Station = Base.classes.station
-lastdate = session.query(func.max(Measurement.date)).\
-            scalar()
-            
-a_maxdate = arrow.get(lastdate)
-startdate = a_maxdate.shift(months=-12).format('YYYY-MM-DD')
 
 
-dates = []
-precip = []
-for row in query:
-    measurement = row
-    dates.append(measurement.date)
-    precip.append(measurement.prcp)
-measurement = pd.DataFrame({"date":dates,
-                             "precipitation":precip})
-measurement.dropna(inplace = True)
-
+#################################################
+# Flask Setup
+#################################################
 app = Flask(__name__)
 
+
+#################################################
+# Flask Routes
+#################################################
 
 @app.route("/")
 def welcome():
@@ -50,16 +40,98 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/2014-05-01  - please enter a date between <strong>2010-01-01  and 2017-08-23</strong> in that format<br/>"
+        f"/api/v1.0/2014-05-01/2015-04-30 - please enter a <strong>start date and end date</strong> between <strong>2010-01-01 and 2017-08-23</strong> in that format "
     )
 
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    query = session.query(Measurement).\
+    session = Session(engine)
+    
+    lastdate = session.query(func.max(Measurement.date)).\
+                    scalar()
+    dt_lastdate= dt.datetime.strptime(lastdate,"%Y-%m-%d").date()
+    dt_startdate = dt_lastdate - dt.timedelta(days=365)
+    startdate = dt_startdate.strftime("%Y-%m-%d")
+    results = session.query(Measurement.date, Measurement.prcp).\
             filter(Measurement.date.between(startdate,lastdate)).\
             all()
-    return jsonify(measurement)
+    
+    session.close()
+    
+    precip = []
+    for date, prcp in results:
+            precip_dict ={}
+            precip_dict['date'] = date
+            precip_dict['prcp'] = prcp
+            precip.append(precip_dict)
+    return jsonify(precip)
 
+@app.route("/api/v1.0/stations")
+def stations():
+    session = Session(engine)
+
+    results = session.query(Station.name).all()
+
+    session.close()
+
+    # Convert list of tuples into normal list
+    all_stations = list(np.ravel(results))
+    return jsonify(all_stations)
+
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    session = Session(engine)
+
+    top_station = session.query(Measurement.station).\
+                    group_by(Measurement.station).\
+                    order_by(func.count(Measurement.station).desc()).\
+                    subquery()
+
+    lastdate = session.query(func.max(Measurement.date)).\
+                    scalar()
+    dt_lastdate= dt.datetime.strptime(lastdate,"%Y-%m-%d").date()
+    dt_startdate = dt_lastdate - dt.timedelta(days=365)
+    startdate = dt_startdate.strftime("%Y-%m-%d")
+    
+    results = session.query(Measurement.date, Measurement.tobs).\
+                filter(Measurement.date.between(startdate,lastdate)).\
+                filter(Measurement.station.in_(top_station)).\
+                all()
+    session.close()
+
+    #topStation = list(np.ravel(results))
+    #return jsonify(topStation)
+
+    topStation = []
+    for date, tobs in results:
+            tobs_dict ={}
+            tobs_dict['date'] = date
+            tobs_dict['tobs'] = tobs
+            topStation.append(tobs_dict)
+    return jsonify(topStation)
+
+
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def rangestart(start,end=None):
+    session=Session(engine)
+    if end == None:
+        enddate = session.query(func.max(Measurement.date)).\
+                    scalar()
+    else:
+        enddate = str(end)
+    startdate = str(start)
+    results = session.query(func.min(Measurement.tobs).label('min_temp'),
+                            func.avg(Measurement.tobs).label('avg_temp'),
+                            func.max(Measurement.tobs).label('max_temp')).\
+                filter(Measurement.date.between(startdate,enddate)).\
+                first()
+    session.close()
+    datapoints = list(np.ravel(results))
+    return jsonify(datapoints)
 
 
 
