@@ -1,4 +1,4 @@
-#THIS IS BROKEN. WILL FIX!!!!!
+#Import libraries and packages needed for app.py
 
 from flask import Flask, jsonify
 import sqlalchemy
@@ -12,17 +12,16 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.sql.functions import session_user
 from sqlalchemy.sql.selectable import subquery
 
+#Set up the engine and base to run
 engine = create_engine("sqlite:///Instructions/Resources/hawaii.sqlite")
 Base = automap_base()
 Base.prepare(engine, reflect=True)
 
+#Create classes - Measurement and station
 Measurement= Base.classes.measurement
 Station = Base.classes.station
 
-
-#################################################
 # Flask Setup
-#################################################
 app = Flask(__name__)
 
 
@@ -32,6 +31,9 @@ app = Flask(__name__)
 
 @app.route("/")
 def welcome():
+    '''
+    This is the initial page that will give the routes the user can go to
+    '''
     return (
         f"<h1>Welcome to my climate app</h1><br/>" 
         f"<h2>This is the solution for #2 on the sqlalchemy-challenge</h2><br/>"
@@ -47,6 +49,9 @@ def welcome():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
+    '''
+    This gives the precipitation in json format for date and precipitation in the last year
+    '''
     session = Session(engine)
     
     lastdate = session.query(func.max(Measurement.date)).\
@@ -68,8 +73,13 @@ def precipitation():
             precip.append(precip_dict)
     return jsonify(precip)
 
+
+
 @app.route("/api/v1.0/stations")
 def stations():
+    '''
+    This will give a list of stations available to review
+    '''
     session = Session(engine)
 
     results = session.query(Station.name).all()
@@ -83,6 +93,10 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
+    '''
+    This will give the temperatures and dates for the alstyear for the station
+    with the most observations
+    '''
     session = Session(engine)
 
     top_station = session.query(Measurement.station).\
@@ -102,9 +116,6 @@ def tobs():
                 all()
     session.close()
 
-    #topStation = list(np.ravel(results))
-    #return jsonify(topStation)
-
     topStation = []
     for date, tobs in results:
             tobs_dict ={}
@@ -117,6 +128,11 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
 def rangestart(start,end=None):
+    '''
+    This will give the minimum, the average and maximum temperature based on a set of dates
+    If only the start date is given, the end date will be the last date of the database.
+    If the start and end date are given, it will 
+    '''
     session=Session(engine)
     if end == None:
         enddate = session.query(func.max(Measurement.date)).\
