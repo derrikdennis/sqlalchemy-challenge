@@ -19,7 +19,7 @@ If we are looking at the station with the most observations **in the dataset**, 
 
 If we are looking at the station with the most observations **in the dataset _in the last year_**, the results are for Waikiki, which are found here
 
-![waikiki](results/waikiki-histogram.png)
+![waikiki](results/wakiki-histogram.png)
 
 ## Climate App
 
