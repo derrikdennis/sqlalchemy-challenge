@@ -1,4 +1,7 @@
-# sqlalchemy-challenge
+# SQLAlchemy Homework - Surfs Up
+
+
+## Background
 
 In this challenge, there were major components, the _Climate Analysis and Exploration_ and the _Climate App_
 
