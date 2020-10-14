@@ -3,7 +3,8 @@
 
 ## Background
 
-In this challenge, there were major components, the _Climate Analysis and Exploration_ and the _Climate App_
+In this challenge, I am analyzing climate data for Hawaii.
+There were two major components, the _Climate Analysis and Exploration_ and the _Climate App_
 
 ## Climate Analysis and Exploration
 
