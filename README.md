@@ -5,6 +5,8 @@
 - [Background](#background)
 - [Climate Analysis and Exploration](#climate-analysis-and-exploration)
 - [Climate App](#climate-app)
+- [Bonus: Other Recommended Analysis](#bonus-other-recommended-analysis)
+  - [Temperature Analysis I](#temperature-analysis-i)
 
 ## Background
 
@@ -33,3 +35,17 @@ If we are looking at the station with the most observations **in the dataset _in
 ## Climate App
 
 Code for the climate app can be found under app.py.  Enter "python app.py" into a terminal.  You then will go to [http://127.0.0.5000/](http://127.00.5000/) to start the results.
+
+## Bonus: Other Recommended Analysis
+
+There were optional challenge queries.  I shall now attempt these.
+
+### Temperature Analysis I
+
+Hawaii is reputed to enjoy mild weather all year.  is there a meaningful difference between the temperature in June and December?
+
+ - I will bring in hawaii measurements.csv using pandas's `read_csv()` to perform this portion.
+
+ - I will identify the average temperature in June at all stations across all available years.  And I will do the same thing for December.
+
+ - I will use the t-test to determine wheher the difference in the means, if any, is statistically significant.
