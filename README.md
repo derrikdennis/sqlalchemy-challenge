@@ -1,5 +1,10 @@
-# SQLAlchemy Homework - Surfs Up
+# SQLAlchemy Homework - Surfs Up <!-- omit in toc -->
 
+## Table of Contents <!-- omit in toc -->
+
+- [Background](#background)
+- [Climate Analysis and Exploration](#climate-analysis-and-exploration)
+- [Climate App](#climate-app)
 
 ## Background
 
