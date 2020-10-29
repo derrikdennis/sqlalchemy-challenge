@@ -1,4 +1,4 @@
-# Surf's Up - SQLAlchemy and SQLite <!-- omit in toc -->
+# Surf's Up - SQLAlchemy Challenge <!-- omit in toc -->
 
 ## Table of Contents <!-- omit in toc -->
 
